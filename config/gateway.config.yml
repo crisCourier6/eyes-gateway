@@ -1,0 +1,83 @@
+# Configuración de la API-Gateway de EyesFood implementada con express-gateway https://www.express-gateway.io/docs/
+# http contiene el puerto donde la API-Gateway escucha las requests
+http:
+  port: 8080
+  hostname: "192.168.100.6"
+admin:
+  port: 9876
+  host: "192.168.100.6"
+# apiEndopoints contiene los paths asociados a cada microservicio.
+# serviceEndpoints contiene la url donde se encuentra cada microservicio
+apiEndpoints:
+  ms-accounts:
+    host: "*"
+    paths: ["/users", /users/*", "/auth/*", "/activate/*/*"]
+  ms-food-profile:
+    host: "*"
+    paths: ["/foodlocal", "/foodlocal/*", "/foodexternal/*", "/food", "/food/*"]
+serviceEndpoints:
+  ms-accounts:
+    url: "http://192.168.100.6:3000"
+  ms-food-profile:
+    url: "http://192.168.100.6:3001"
+# policies contiene funcionalidades que pueden ser utilizadas para evaluar requests y realizar acciones sobre ellas
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - jwt
+  - rate-limit
+  - request-transformer
+pipelines:
+  ms-accounts:
+    apiEndpoints:
+      - ms-accounts-and-access
+    policies:
+    # cors es necesario para manejar la autenticación y autorización de usuarios a traves de jsonwebtoken
+      - cors:
+          - action:
+              origin: true
+              credentials: true
+              methods: 'HEAD,PUT,PATCH,POST,DELETE,GET'
+              exposedHeaders : ['allowed-custom-header']
+              allowedHeaders :  ['content-type', 'Authorization', "Access-Control-Allow-Origin", "cookies", "set-cookies"]
+              preflightContinue : false
+              optionsSuccessStatus  : 204
+      - proxy:
+          - action:
+              serviceEndpoint: ms-accounts-and-access
+              changeOrigin: true
+
+  ms-food-profile:
+    apiEndpoints:
+      - ms-food-profile
+    policies:
+      - cors:
+            - action:
+                origin: true
+                credentials: true
+                methods: 'HEAD,PUT,PATCH,POST,DELETE,GET'
+                exposedHeaders : ['allowed-custom-header']
+                allowedHeaders :  ['content-type', 'Authorization', "Access-Control-Allow-Origin", "cookies", "set-cookies"]
+                preflightContinue : false
+                optionsSuccessStatus  : 204
+    # jwt revisa que la jsonwebtoken que viene en el header "Authorization" de la request sea válida
+    # secretOrPublicKey debe ser igual a la utilizada en el microservicio para crear la token
+      - jwt:
+          - action:
+              secretOrPublicKey: ${JWT_SECRET}
+              checkCredentialExistence: false
+      - request-transformer:
+          - action:
+              body:
+                  add:
+                      user: req.user
+
+      - proxy:
+          - action:
+              serviceEndpoint: ms-food-profile
+              changeOrigin: true
