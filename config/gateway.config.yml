@@ -11,10 +11,10 @@ admin:
 apiEndpoints:
   ms-accounts:
     host: "*"
-    paths: ["/users", /users/*", "/auth/*", "/activate/*/*"]
+    paths: ["/users", "/users/*", "/auth/*", "/activate/*/*"]
   ms-food-profile:
     host: "*"
-    paths: ["/foodlocal", "/foodlocal/*", "/foodexternal/*", "/food", "/food/*"]
+    paths: ["/foodlocal", "/foodlocal/*", "/foodexternal/*", "/food", "/food/*", "/foodratings", "/foodratings/*"]
 serviceEndpoints:
   ms-accounts:
     url: "http://192.168.100.6:3000"
@@ -35,7 +35,7 @@ policies:
 pipelines:
   ms-accounts:
     apiEndpoints:
-      - ms-accounts-and-access
+      - ms-accounts
     policies:
     # cors es necesario para manejar la autenticación y autorización de usuarios a traves de jsonwebtoken
       - cors:
@@ -49,7 +49,7 @@ pipelines:
               optionsSuccessStatus  : 204
       - proxy:
           - action:
-              serviceEndpoint: ms-accounts-and-access
+              serviceEndpoint: ms-accounts
               changeOrigin: true
 
   ms-food-profile:
