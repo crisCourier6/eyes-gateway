@@ -14,7 +14,7 @@ apiEndpoints:
     paths: ["/users", "/users/*", "/auth/*", "auth/*/*", "/activate/*/*"]
   ms-food-profile:
     host: "*"
-    paths: ["/foodlocal", "/foodlocal/*", "/foodexternal/*", "/food", "/food/*", "/foodratings", "/foodratings/*"]
+    paths: ["/food", "/food/*"]
   ms-user-profile:
     host: "*"
     paths: ["/profile", "/profile/*", "/profile/*/*"]
