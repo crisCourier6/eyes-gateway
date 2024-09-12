@@ -9,22 +9,34 @@ admin:
 # apiEndopoints contiene los paths asociados a cada microservicio.
 # serviceEndpoints contiene la url donde se encuentra cada microservicio
 apiEndpoints:
+  login: 
+    host: "*"
+    paths: ["/auth/*", "auth/*/*", "/activate/*/*"]
   ms-accounts:
     host: "*"
-    paths: ["/users", "/users/*", "/auth/*", "auth/*/*", "/activate/*/*"]
+    paths: ["/users", "/users/*"]
   ms-food-profile:
     host: "*"
     paths: ["/food", "/food/*"]
+  ms-food-edits:
+    host: "*"
+    paths: ["/submissions", "/submissions/*", "/submissions-food", "/submissions-food/*", 
+            "/submissions-additives", "/submissions-additives/*", "/submissions-allergens", "/submissions-allergens/*",
+            "/submissions-images"]
   ms-user-profile:
     host: "*"
     paths: ["/profile", "/profile/*", "/profile/*/*"]
 serviceEndpoints:
+  login:
+    url: "http://192.168.100.6:3000"
   ms-accounts:
     url: "http://192.168.100.6:3000"
   ms-food-profile:
     url: "http://192.168.100.6:3001"
   ms-user-profile:
     url: "http://192.168.100.6:3003"
+  ms-food-edits:
+    url: "http://192.168.100.6:3004"
 # policies contiene funcionalidades que pueden ser utilizadas para evaluar requests y realizar acciones sobre ellas
 policies:
   - basic-auth
@@ -38,9 +50,9 @@ policies:
   - rate-limit
   - request-transformer
 pipelines:
-  ms-accounts:
+  login:
     apiEndpoints:
-      - ms-accounts
+      - login
     policies:
     # cors es necesario para manejar la autenticación y autorización de usuarios a traves de jsonwebtoken
       - cors:
@@ -52,6 +64,36 @@ pipelines:
               allowedHeaders :  ['content-type', 'Authorization', "Access-Control-Allow-Origin", "cookies", "set-cookies"]
               preflightContinue : false
               optionsSuccessStatus  : 204
+      - proxy:
+          - action:
+              serviceEndpoint: login
+              changeOrigin: true
+
+  ms-accounts:
+    apiEndpoints:
+      - ms-accounts
+    policies:
+      - cors:
+            - action:
+                origin: true
+                credentials: true
+                methods: 'HEAD,PUT,PATCH,POST,DELETE,GET'
+                exposedHeaders : ['allowed-custom-header']
+                allowedHeaders :  ['content-type', 'Authorization', "Access-Control-Allow-Origin", "cookies", "set-cookies"]
+                preflightContinue : false
+                optionsSuccessStatus  : 204
+    # jwt revisa que la jsonwebtoken que viene en el header "Authorization" de la request sea válida
+    # secretOrPublicKey debe ser igual a la utilizada en el microservicio para crear la token
+      - jwt:
+          - action:
+              secretOrPublicKey: ${JWT_SECRET}
+              checkCredentialExistence: false
+      - request-transformer:
+          - action:
+              body:
+                  add:
+                      user: req.user
+
       - proxy:
           - action:
               serviceEndpoint: ms-accounts
@@ -87,6 +129,35 @@ pipelines:
               serviceEndpoint: ms-food-profile
               changeOrigin: true
 
+  ms-food-edits:
+    apiEndpoints:
+      - ms-food-edits
+    policies:
+      - cors:
+            - action:
+                origin: true
+                credentials: true
+                methods: 'HEAD,PUT,PATCH,POST,DELETE,GET'
+                exposedHeaders : ['allowed-custom-header']
+                allowedHeaders :  ['content-type', 'Authorization', "Access-Control-Allow-Origin", "cookies", "set-cookies"]
+                preflightContinue : false
+                optionsSuccessStatus  : 204
+    # jwt revisa que la jsonwebtoken que viene en el header "Authorization" de la request sea válida
+    # secretOrPublicKey debe ser igual a la utilizada en el microservicio para crear la token
+      # - jwt:
+      #     - action:
+      #         secretOrPublicKey: ${JWT_SECRET}
+      #         checkCredentialExistence: false
+      # - request-transformer:
+      #     - action:
+      #         body:
+      #             add:
+      #                 user: req.user
+
+      - proxy:
+          - action:
+              serviceEndpoint: ms-food-edits
+              changeOrigin: true
   ms-user-profile:
     apiEndpoints:
       - ms-user-profile
