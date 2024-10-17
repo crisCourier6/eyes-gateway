@@ -11,21 +11,39 @@ admin:
 apiEndpoints:
   login: 
     host: "*"
-    paths: ["/auth/*", "auth/*/*", "/activate/*/*"]
+    paths: ["/auth/*", "auth/*/*", "/activate/*"]
   ms-accounts:
     host: "*"
-    paths: ["/users", "/users/*"]
+    paths: ["/users", "/users/*", "/experts", "/experts/*", "/stores", "/stores/*", "/roles", "/roles/*", "/permissions", "/permissions/*"]
   ms-food-profile:
     host: "*"
-    paths: ["/food", "/food/*"]
+    paths: ["/food", "/food/*", "/search", "/search/*"]
   ms-food-edits:
     host: "*"
-    paths: ["/submissions", "/submissions/*", "/submissions-food", "/submissions-food/*", 
+    paths: ["/submissions", "/submissions/*", "/submissions/*/*", "/submissions-food", "/submissions-food/*", 
             "/submissions-additives", "/submissions-additives/*", "/submissions-allergens", "/submissions-allergens/*",
             "/submissions-images"]
   ms-user-profile:
     host: "*"
     paths: ["/profile", "/profile/*", "/profile/*/*"]
+  ms-food-diary:
+    host: "*"
+    paths: ["/food-diary", "/food-diary/*", "/food-diary-google/*", "/diary-entry-google/*"]
+  ms-comments:
+    host: "*"
+    paths: ["/comments-expert/*", "/comments-store/*", "/comments-expert", "/comments-store", "/comments-food", "/comments-food/*"]
+  ms-expert-profile:
+    host: "*"
+    paths: ["/articles", "/articles/*", "/food-advice", "/food-advice/*", "/expert-profile", "/expert-profile/*"]
+  ms-store-profile:
+    host: "*"
+    paths: ["/catalogue", "/catalogue/*", "/store-profile", "/store-profile/*"]
+  ms-notifications:
+    host: "*"
+    paths: ["/notification", "/notification/*", "/userhasnotification", "/userhasnotification/*"]
+  ms-stats:
+    host: "*"
+    paths: ["/stats", "/stats/*", "/users-stats", "/users-stats/*"]
 serviceEndpoints:
   login:
     url: "http://192.168.100.6:3000"
@@ -37,6 +55,18 @@ serviceEndpoints:
     url: "http://192.168.100.6:3003"
   ms-food-edits:
     url: "http://192.168.100.6:3004"
+  ms-food-diary:
+    url: "http://192.168.100.6:3005"
+  ms-comments:
+    url: "http://192.168.100.6:3006"
+  ms-expert-profile:
+    url: "http://192.168.100.6:3007"
+  ms-store-profile:
+    url: "http://192.168.100.6:3008"
+  ms-notifications:
+    url: "http://192.168.100.6:3009"
+  ms-stats:
+    url: "http://192.168.100.6:3010"
 # policies contiene funcionalidades que pueden ser utilizadas para evaluar requests y realizar acciones sobre ellas
 policies:
   - basic-auth
@@ -88,11 +118,6 @@ pipelines:
           - action:
               secretOrPublicKey: ${JWT_SECRET}
               checkCredentialExistence: false
-      - request-transformer:
-          - action:
-              body:
-                  add:
-                      user: req.user
 
       - proxy:
           - action:
@@ -118,11 +143,6 @@ pipelines:
           - action:
               secretOrPublicKey: ${JWT_SECRET}
               checkCredentialExistence: false
-      - request-transformer:
-          - action:
-              body:
-                  add:
-                      user: req.user
 
       - proxy:
           - action:
@@ -144,10 +164,10 @@ pipelines:
                 optionsSuccessStatus  : 204
     # jwt revisa que la jsonwebtoken que viene en el header "Authorization" de la request sea válida
     # secretOrPublicKey debe ser igual a la utilizada en el microservicio para crear la token
-      # - jwt:
-      #     - action:
-      #         secretOrPublicKey: ${JWT_SECRET}
-      #         checkCredentialExistence: false
+      - jwt:
+          - action:
+              secretOrPublicKey: ${JWT_SECRET}
+              checkCredentialExistence: false
       # - request-transformer:
       #     - action:
       #         body:
@@ -177,13 +197,155 @@ pipelines:
           - action:
               secretOrPublicKey: ${JWT_SECRET}
               checkCredentialExistence: false
-      - request-transformer:
-          - action:
-              body:
-                  add:
-                      user: req.user
 
       - proxy:
           - action:
               serviceEndpoint: ms-user-profile
+              changeOrigin: true
+  ms-comments:
+    apiEndpoints:
+      - ms-comments
+    policies:
+      - cors:
+            - action:
+                origin: true
+                credentials: true
+                methods: 'HEAD,PUT,PATCH,POST,DELETE,GET'
+                exposedHeaders : ['allowed-custom-header']
+                allowedHeaders :  ['content-type', 'Authorization', "Access-Control-Allow-Origin", "cookies", "set-cookies"]
+                preflightContinue : false
+                optionsSuccessStatus  : 204
+    # jwt revisa que la jsonwebtoken que viene en el header "Authorization" de la request sea válida
+    # secretOrPublicKey debe ser igual a la utilizada en el microservicio para crear la token
+      - jwt:
+          - action:
+              secretOrPublicKey: ${JWT_SECRET}
+              checkCredentialExistence: false
+
+      - proxy:
+          - action:
+              serviceEndpoint: ms-comments
+              changeOrigin: true
+  ms-food-diary:
+    apiEndpoints:
+      - ms-food-diary
+    policies:
+      - cors:
+            - action:
+                origin: true
+                credentials: true
+                methods: 'HEAD,PUT,PATCH,POST,DELETE,GET'
+                exposedHeaders : ['allowed-custom-header']
+                allowedHeaders :  ['content-type', 'Authorization', "Access-Control-Allow-Origin", "cookies", "set-cookies"]
+                preflightContinue : false
+                optionsSuccessStatus  : 204
+    # jwt revisa que la jsonwebtoken que viene en el header "Authorization" de la request sea válida
+    # secretOrPublicKey debe ser igual a la utilizada en el microservicio para crear la token
+      - jwt:
+          - action:
+              secretOrPublicKey: ${JWT_SECRET}
+              checkCredentialExistence: false
+
+      - proxy:
+          - action:
+              serviceEndpoint: ms-food-diary
+              changeOrigin: true
+  ms-expert-profile:
+    apiEndpoints:
+      - ms-expert-profile
+    policies:
+      - cors:
+            - action:
+                origin: true
+                credentials: true
+                methods: 'HEAD,PUT,PATCH,POST,DELETE,GET'
+                exposedHeaders : ['allowed-custom-header']
+                allowedHeaders :  ['content-type', 'Authorization', "Access-Control-Allow-Origin", "cookies", "set-cookies"]
+                preflightContinue : false
+                optionsSuccessStatus  : 204
+    # jwt revisa que la jsonwebtoken que viene en el header "Authorization" de la request sea válida
+    # secretOrPublicKey debe ser igual a la utilizada en el microservicio para crear la token
+      - jwt:
+          - action:
+              secretOrPublicKey: ${JWT_SECRET}
+              checkCredentialExistence: false
+
+      - proxy:
+          - action:
+              serviceEndpoint: ms-expert-profile
+              changeOrigin: true
+
+  ms-store-profile:
+    apiEndpoints:
+      - ms-store-profile
+    policies:
+      - cors:
+            - action:
+                origin: true
+                credentials: true
+                methods: 'HEAD,PUT,PATCH,POST,DELETE,GET'
+                exposedHeaders : ['allowed-custom-header']
+                allowedHeaders :  ['content-type', 'Authorization', "Access-Control-Allow-Origin", "cookies", "set-cookies"]
+                preflightContinue : false
+                optionsSuccessStatus  : 204
+    # jwt revisa que la jsonwebtoken que viene en el header "Authorization" de la request sea válida
+    # secretOrPublicKey debe ser igual a la utilizada en el microservicio para crear la token
+      - jwt:
+          - action:
+              secretOrPublicKey: ${JWT_SECRET}
+              checkCredentialExistence: false
+
+      - proxy:
+          - action:
+              serviceEndpoint: ms-store-profile
+              changeOrigin: true
+
+  ms-notifications:
+    apiEndpoints:
+      - ms-notifications
+    policies:
+      - cors:
+            - action:
+                origin: true
+                credentials: true
+                methods: 'HEAD,PUT,PATCH,POST,DELETE,GET'
+                exposedHeaders : ['allowed-custom-header']
+                allowedHeaders :  ['content-type', 'Authorization', "Access-Control-Allow-Origin", "cookies", "set-cookies"]
+                preflightContinue : false
+                optionsSuccessStatus  : 204
+    # jwt revisa que la jsonwebtoken que viene en el header "Authorization" de la request sea válida
+    # secretOrPublicKey debe ser igual a la utilizada en el microservicio para crear la token
+      - jwt:
+          - action:
+              secretOrPublicKey: ${JWT_SECRET}
+              checkCredentialExistence: false
+
+      - proxy:
+          - action:
+              serviceEndpoint: ms-notifications
+              changeOrigin: true
+
+  ms-stats:
+    apiEndpoints:
+      - ms-stats
+    policies:
+      - cors:
+            - action:
+                origin: true
+                credentials: true
+                methods: 'HEAD,PUT,PATCH,POST,DELETE,GET'
+                exposedHeaders : ['allowed-custom-header']
+                allowedHeaders :  ['content-type', 'Authorization', "Access-Control-Allow-Origin", "cookies", "set-cookies"]
+                preflightContinue : false
+                optionsSuccessStatus  : 204
+    # jwt revisa que la jsonwebtoken que viene en el header "Authorization" de la request sea válida
+    # secretOrPublicKey debe ser igual a la utilizada en el microservicio para crear la token
+      - jwt:
+          - action:
+              secretOrPublicKey: ${JWT_SECRET}
+              checkCredentialExistence: false
+
+      - proxy:
+          - action:
+              serviceEndpoint: ms-stats
               changeOrigin: true
