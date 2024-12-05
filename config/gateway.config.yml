@@ -1,26 +1,27 @@
 # Configuración de la API-Gateway de EyesFood implementada con express-gateway https://www.express-gateway.io/docs/
 # http contiene el puerto donde la API-Gateway escucha las requests
 http:
-  port: 8080
-  hostname: "192.168.100.6"
+  port: ${PORT}
+  hostname: "0.0.0.0"
 admin:
-  port: 9876
-  host: "192.168.100.6"
+  port: ${ADMIN_PORT}
+  host: "0.0.0.0"
 # apiEndopoints contiene los paths asociados a cada microservicio.
 # serviceEndpoints contiene la url donde se encuentra cada microservicio
 apiEndpoints:
   login: 
     host: "*"
-    paths: ["/auth/*", "auth/*/*", "/activate/*"]
+    paths: ["/auth/*", "/auth/*/*", "/activate/*"]
   ms-accounts:
     host: "*"
-    paths: ["/users", "/users/*", "/experts", "/experts/*", "/stores", "/stores/*", "/roles", "/roles/*", "/permissions", "/permissions/*"]
+    paths: ["/users", "/users/*", "/experts", "/experts/*", "/stores", "/stores/*",
+             "/roles", "/roles/*", "/permissions", "/permissions/*"]
   ms-food-profile:
     host: "*"
     paths: ["/food", "/food/*", "/search", "/search/*"]
   ms-food-edits:
     host: "*"
-    paths: ["/submissions", "/submissions/*", "/submissions/*/*", "/submissions-food", "/submissions-food/*", 
+    paths: ["/submissions", "/submissions/*", "submissions/*/*", "/submissions-food", "/submissions-food/*", 
             "/submissions-additives", "/submissions-additives/*", "/submissions-allergens", "/submissions-allergens/*",
             "/submissions-images"]
   ms-user-profile:
@@ -32,13 +33,13 @@ apiEndpoints:
   ms-comments:
     host: "*"
     paths: ["/comments-expert/*", "/comments-store/*", "/comments-expert", "/comments-store", "/comments-food", "/comments-food/*"]
-  ms-expert-profile:
+  ms-experts:
     host: "*"
     paths: ["/articles", "/articles/*", "/food-advice", "/food-advice/*", "/expert-profile", "/expert-profile/*"]
-  ms-store-profile:
+  ms-stores:
     host: "*"
     paths: ["/catalogue", "/catalogue/*", "/store-profile", "/store-profile/*"]
-  ms-notifications:
+  ms-notification:
     host: "*"
     paths: ["/notification", "/notification/*", "/userhasnotification", "/userhasnotification/*"]
   ms-stats:
@@ -46,27 +47,28 @@ apiEndpoints:
     paths: ["/stats", "/stats/*", "/users-stats", "/users-stats/*"]
 serviceEndpoints:
   login:
-    url: "http://192.168.100.6:3000"
+    url: "http://ms-accounts:2000"  # Replace with correct service name and port if needed
   ms-accounts:
-    url: "http://192.168.100.6:3000"
-  ms-food-profile:
-    url: "http://192.168.100.6:3001"
-  ms-user-profile:
-    url: "http://192.168.100.6:3003"
-  ms-food-edits:
-    url: "http://192.168.100.6:3004"
-  ms-food-diary:
-    url: "http://192.168.100.6:3005"
+    url: "http://ms-accounts:2000"
   ms-comments:
-    url: "http://192.168.100.6:3006"
-  ms-expert-profile:
-    url: "http://192.168.100.6:3007"
-  ms-store-profile:
-    url: "http://192.168.100.6:3008"
-  ms-notifications:
-    url: "http://192.168.100.6:3009"
+    url: "http://ms-comments:2001"
+  ms-experts:
+    url: "http://ms-experts:2002"
+  ms-food-diary:
+    url: "http://ms-food-diary:2003"
+  ms-food-edits:
+    url: "http://ms-food-edits:2004"
+  ms-food-profile:
+    url: "http://ms-food-profile:2005"
+  ms-notification:
+    url: "http://ms-notification:2006"
   ms-stats:
-    url: "http://192.168.100.6:3010"
+    url: "http://ms-stats:2007"
+  ms-stores:
+    url: "http://ms-stores:2008"
+  ms-user-profile:
+    url: "http://ms-user-profile:2009"
+
 # policies contiene funcionalidades que pueden ser utilizadas para evaluar requests y realizar acciones sobre ellas
 policies:
   - basic-auth
@@ -250,9 +252,9 @@ pipelines:
           - action:
               serviceEndpoint: ms-food-diary
               changeOrigin: true
-  ms-expert-profile:
+  ms-experts:
     apiEndpoints:
-      - ms-expert-profile
+      - ms-experts
     policies:
       - cors:
             - action:
@@ -272,12 +274,12 @@ pipelines:
 
       - proxy:
           - action:
-              serviceEndpoint: ms-expert-profile
+              serviceEndpoint: ms-experts
               changeOrigin: true
 
-  ms-store-profile:
+  ms-stores:
     apiEndpoints:
-      - ms-store-profile
+      - ms-stores
     policies:
       - cors:
             - action:
@@ -297,12 +299,12 @@ pipelines:
 
       - proxy:
           - action:
-              serviceEndpoint: ms-store-profile
+              serviceEndpoint: ms-stores
               changeOrigin: true
 
-  ms-notifications:
+  ms-notification:
     apiEndpoints:
-      - ms-notifications
+      - ms-notification
     policies:
       - cors:
             - action:
@@ -322,7 +324,7 @@ pipelines:
 
       - proxy:
           - action:
-              serviceEndpoint: ms-notifications
+              serviceEndpoint: ms-notification
               changeOrigin: true
 
   ms-stats:
