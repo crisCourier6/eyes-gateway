@@ -1,11 +1,11 @@
 # Configuración de la API-Gateway de EyesFood implementada con express-gateway https://www.express-gateway.io/docs/
 # http contiene el puerto donde la API-Gateway escucha las requests
 http:
-  port: 8080
-  hostname: "192.168.100.6"
+  port: ${PORT}
+  hostname: ${HOST}
 admin:
-  port: 9876
-  host: "192.168.100.6"
+  port: ${ADMIN_PORT}
+  host: ${HOST}
 # apiEndopoints contiene los paths asociados a cada microservicio.
 # serviceEndpoints contiene la url donde se encuentra cada microservicio
 apiEndpoints:
@@ -14,7 +14,7 @@ apiEndpoints:
     paths: ["/auth/*", "auth/*/*", "/activate/*"]
   ms-accounts:
     host: "*"
-    paths: ["/users", "/users/*", "/experts", "/experts/*", "/stores", "/stores/*", "/roles", "/roles/*", "/permissions", "/permissions/*"]
+    paths: ["/users", "/users/*", "/experts", "/experts/*", "/stores", "/stores/*", "/roles", "/roles/*", "/permissions", "/permissions/*", "/validate-token"]
   ms-food-profile:
     host: "*"
     paths: ["/food", "/food/*", "/search", "/search/*"]
@@ -46,27 +46,27 @@ apiEndpoints:
     paths: ["/stats", "/stats/*", "/users-stats", "/users-stats/*"]
 serviceEndpoints:
   login:
-    url: "http://192.168.100.6:3000"
+    url: ${MS_ACCOUNTS}
   ms-accounts:
-    url: "http://192.168.100.6:3000"
+    url: ${MS_ACCOUNTS}
   ms-food-profile:
-    url: "http://192.168.100.6:3001"
+    url: ${MS_FOOD_PROFILE}
   ms-user-profile:
-    url: "http://192.168.100.6:3003"
+    url: ${MS_USER_PROFILE}
   ms-food-edits:
-    url: "http://192.168.100.6:3004"
+    url: ${MS_FOOD_EDITS}
   ms-food-diary:
-    url: "http://192.168.100.6:3005"
+    url: ${MS_FOOD_DIARY}
   ms-comments:
-    url: "http://192.168.100.6:3006"
+    url: ${MS_COMMENTS}
   ms-expert-profile:
-    url: "http://192.168.100.6:3007"
+    url: ${MS_EXPERT_PROFILE}
   ms-store-profile:
-    url: "http://192.168.100.6:3008"
+    url: ${MS_STORE_PROFILE}
   ms-notifications:
-    url: "http://192.168.100.6:3009"
+    url: ${MS_NOTIFICATIONS}
   ms-stats:
-    url: "http://192.168.100.6:3010"
+    url: ${MS_STATS}
 # policies contiene funcionalidades que pueden ser utilizadas para evaluar requests y realizar acciones sobre ellas
 policies:
   - basic-auth
