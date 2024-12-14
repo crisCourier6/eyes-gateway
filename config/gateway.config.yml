@@ -2,10 +2,10 @@
 # http contiene el puerto donde la API-Gateway escucha las requests
 http:
   port: ${PORT}
-  hostname: "0.0.0.0"
+  hostname: ${HOST}
 admin:
   port: ${ADMIN_PORT}
-  host: "0.0.0.0"
+  host: ${HOST}
 # apiEndopoints contiene los paths asociados a cada microservicio.
 # serviceEndpoints contiene la url donde se encuentra cada microservicio
 apiEndpoints:
@@ -14,8 +14,7 @@ apiEndpoints:
     paths: ["/auth/*", "/auth/*/*", "/activate/*"]
   ms-accounts:
     host: "*"
-    paths: ["/users", "/users/*", "/experts", "/experts/*", "/stores", "/stores/*",
-             "/roles", "/roles/*", "/permissions", "/permissions/*"]
+    paths: ["/users", "/users/*", "/experts", "/experts/*", "/stores", "/stores/*", "/roles", "/roles/*", "/permissions", "/permissions/*", "/validate-token"]
   ms-food-profile:
     host: "*"
     paths: ["/food", "/food/*", "/search", "/search/*"]
@@ -47,28 +46,27 @@ apiEndpoints:
     paths: ["/stats", "/stats/*", "/users-stats", "/users-stats/*"]
 serviceEndpoints:
   login:
-    url: "http://ms-accounts:2000"  # Replace with correct service name and port if needed
+    url: ${MS_ACCOUNTS}
   ms-accounts:
-    url: "http://ms-accounts:2000"
-  ms-comments:
-    url: "http://ms-comments:2001"
-  ms-experts:
-    url: "http://ms-experts:2002"
-  ms-food-diary:
-    url: "http://ms-food-diary:2003"
-  ms-food-edits:
-    url: "http://ms-food-edits:2004"
+    url: ${MS_ACCOUNTS}
   ms-food-profile:
-    url: "http://ms-food-profile:2005"
-  ms-notification:
-    url: "http://ms-notification:2006"
-  ms-stats:
-    url: "http://ms-stats:2007"
-  ms-stores:
-    url: "http://ms-stores:2008"
+    url: ${MS_FOOD_PROFILE}
   ms-user-profile:
-    url: "http://ms-user-profile:2009"
-
+    url: ${MS_USER_PROFILE}
+  ms-food-edits:
+    url: ${MS_FOOD_EDITS}
+  ms-food-diary:
+    url: ${MS_FOOD_DIARY}
+  ms-comments:
+    url: ${MS_COMMENTS}
+  ms-expert-profile:
+    url: ${MS_EXPERT_PROFILE}
+  ms-store-profile:
+    url: ${MS_STORE_PROFILE}
+  ms-notifications:
+    url: ${MS_NOTIFICATIONS}
+  ms-stats:
+    url: ${MS_STATS}
 # policies contiene funcionalidades que pueden ser utilizadas para evaluar requests y realizar acciones sobre ellas
 policies:
   - basic-auth
