@@ -32,13 +32,13 @@ apiEndpoints:
   ms-comments:
     host: "*"
     paths: ["/comments-expert/*", "/comments-store/*", "/comments-expert", "/comments-store", "/comments-food", "/comments-food/*"]
-  ms-experts:
+  ms-expert-profile:
     host: "*"
     paths: ["/articles", "/articles/*", "/food-advice", "/food-advice/*", "/expert-profile", "/expert-profile/*"]
-  ms-stores:
+  ms-store-profile:
     host: "*"
     paths: ["/catalogue", "/catalogue/*", "/store-profile", "/store-profile/*"]
-  ms-notification:
+  ms-notifications:
     host: "*"
     paths: ["/notification", "/notification/*", "/userhasnotification", "/userhasnotification/*"]
   ms-stats:
@@ -250,9 +250,9 @@ pipelines:
           - action:
               serviceEndpoint: ms-food-diary
               changeOrigin: true
-  ms-experts:
+  ms-expert-profile:
     apiEndpoints:
-      - ms-experts
+      - ms-expert-profile
     policies:
       - cors:
             - action:
@@ -272,12 +272,12 @@ pipelines:
 
       - proxy:
           - action:
-              serviceEndpoint: ms-experts
+              serviceEndpoint: ms-expert-profile
               changeOrigin: true
 
-  ms-stores:
+  ms-store-profile:
     apiEndpoints:
-      - ms-stores
+      - ms-store-profile
     policies:
       - cors:
             - action:
@@ -297,12 +297,12 @@ pipelines:
 
       - proxy:
           - action:
-              serviceEndpoint: ms-stores
+              serviceEndpoint: ms-store-profile
               changeOrigin: true
 
-  ms-notification:
+  ms-notifications:
     apiEndpoints:
-      - ms-notification
+      - ms-notifications
     policies:
       - cors:
             - action:
@@ -322,7 +322,7 @@ pipelines:
 
       - proxy:
           - action:
-              serviceEndpoint: ms-notification
+              serviceEndpoint: ms-notifications
               changeOrigin: true
 
   ms-stats:
